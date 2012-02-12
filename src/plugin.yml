@@ -1,0 +1,15 @@
+name: CombatProtector
+main: com.tetra.combatprotector.CombatProtector
+version: 2.5.7b
+description: >
+             Prevent players from logging out/teleporting in combat.
+commands:
+   combatlist:
+      description: Checks a players gamemode.
+      permission: combatprotector.combatlist
+      usage: /combatlist
+   cblog:
+      description: Displays the combat damage history.
+      permissions: combatprotector.cblog
+      usage: /cblog [on;off]
+authors: [Mastershake71]
