@@ -37,12 +37,14 @@ public class MarkHandler implements Runnable {
 	}
 
 	private void initTimer(long delay) {
-		this.started = System.currentTimeMillis();
+		Calendar c = new GregorianCalendar();
+		this.started = c.getTimeInMillis();
 		this.delay = delay;
 	}
 
 	private void updateTimer(long delay) {
-		this.started = System.currentTimeMillis();
+		Calendar c = new GregorianCalendar();
+		this.started = c.getTimeInMillis();
 		this.delay = delay;
 	}
 
@@ -94,7 +96,7 @@ public class MarkHandler implements Runnable {
 		cp.markHandler.add(this);
 		double delay = cp.config.getCombatTimeOut();
 		cancel();
-		c = new GregorianCalendar();
+		Calendar c = new GregorianCalendar();
 		c.add(Calendar.SECOND, (int) delay);
 		c.add(Calendar.MILLISECOND, (int) ((delay * 1000.0) % 1000.0));
 		player.sendMessage(ChatColor.RED
@@ -113,6 +115,11 @@ public class MarkHandler implements Runnable {
 	}
 
 	public void sendTimeRemain() {
+		double delay = cp.config.getCombatTimeOut();
+		Calendar c = new GregorianCalendar();
+		c.setTimeInMillis(started);
+		c.add(Calendar.SECOND, (int) delay);
+		c.add(Calendar.MILLISECOND, (int) ((delay * 1000.0) % 1000.0));
 		player.sendMessage(ChatColor.RED
 				+ "You must wait "
 				+ Util.formatDateDiff(c.getTimeInMillis()) + " before performing this action.");
@@ -120,10 +127,10 @@ public class MarkHandler implements Runnable {
 
 	public void refreshTimer(Player p) {
 		double delay = cp.config.getCombatTimeOut();
-		updateTimer((long) (delay * 1000.0));
-		c = new GregorianCalendar();
+/*		c = new GregorianCalendar();
 		c.add(Calendar.SECOND, (int) delay);
-		c.add(Calendar.MILLISECOND, (int) ((delay * 1000.0) % 1000.0));
+		c.add(Calendar.MILLISECOND, (int) ((delay * 1000.0) % 1000.0));*/
+		updateTimer((long) (delay * 1000.0));
 	}
 
 }

@@ -20,7 +20,7 @@ import java.io.IOException;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 public class Configuration {
-
+	public boolean LoggerFlag = false;
 	private YamlConfiguration fc = new YamlConfiguration();
 
 	public void setConfDefaults() {
@@ -37,7 +37,7 @@ public class Configuration {
 			fc.set("general.combattimeout", 7);
 		}
 		if (!fc.contains("general.combatlogger")) {
-			fc.set("general.combatlog", false);
+			fc.set("general.combatlogger", false);
 		}
 		try {
 			fc.save("plugins/CombatProtector/config.yml");

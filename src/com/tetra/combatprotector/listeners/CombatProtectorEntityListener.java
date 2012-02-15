@@ -50,54 +50,49 @@ public class CombatProtectorEntityListener implements Listener {
 		this.TimeOut = config.getCombatTimeOut() * 20;
 	}
 
-	@EventHandler(priority = EventPriority.HIGH)
+	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onEntityDamage(EntityDamageEvent event) {
-			if (config.getEnabled()) {
-				Event eventType = event.getEntity().getLastDamageCause();
-				if (event instanceof EntityDamageByEntityEvent) {
-					EntityDamageByEntityEvent evt = (EntityDamageByEntityEvent) eventType;
-					Entity Damagee = checkSource(evt.getEntity());
-					Entity Damager = checkSource(evt.getDamager());
-					if ((Damagee != null) && (Damager != null)) {
-						final Player p = (Player) Damagee;
-						Player a = (Player) Damager;
-						if (!evt.isCancelled()) {
-							try {
-								MarkHandler MH = plugin.markHandler
-										.get(plugin.safeLogoutList.indexOf(p));
-								MH.refreshTimer(p);
-							} catch (Exception ex) {
-								MarkHandler MH = new MarkHandler(p, plugin);
-								if (!MH.checkTagged(p)) {
-									a.sendMessage(ChatColor.RED + "You marked "
-											+ p.getName() + " for combat.");
-									MH.safeOff(p);
-								}
-							}
-						}
-						if (config.getCLEnabled()) {
-							CL.AddEntry(p, a, evt.getDamage(), checkWeapon(a));
+		Event eventType = event.getEntity().getLastDamageCause();
+		if (event instanceof EntityDamageByEntityEvent) {
+			EntityDamageByEntityEvent evt = (EntityDamageByEntityEvent) eventType;
+			Entity Damagee = checkSource(evt.getEntity());
+			Entity Damager = checkSource(evt.getDamager());
+			if ((Damagee != null) && (Damager != null)) {
+				final Player p = (Player) Damagee;
+				Player a = (Player) Damager;
+				if (!evt.isCancelled() || evt.getDamage() == 0) {
+					try {
+						MarkHandler MH = plugin.markHandler
+								.get(plugin.safeLogoutList.indexOf(p));
+						MH.refreshTimer(p);
+					} catch (Exception ex) {
+						MarkHandler MH = new MarkHandler(p, plugin);
+						if (!MH.checkTagged(p)) {
+							a.sendMessage(ChatColor.RED + "You marked "
+									+ p.getName() + " for combat.");
+							MH.safeOff(p);
 						}
 					}
+					CL.AddEntry(p, a, evt.getDamage(), checkWeapon(a));
 				}
+
 			}
+		}
 	}
 
 	@EventHandler(priority = EventPriority.NORMAL)
 	public void onEntityDeath(EntityDeathEvent event) {
-		if (config.getEnabled()) {
-			Entity Victim = checkSource(event.getEntity());
-			if (Victim != null) {
-				Player p = (Player) Victim;
-				if (p != null) {
-					try {
-						MarkHandler MH = plugin.markHandler
-								.get(plugin.safeLogoutList.indexOf(p));
-						if (MH.checkTagged(p)) {
-							MH.safeOn(p);
-						}
-					} catch (Exception ex) {
+		Entity Victim = checkSource(event.getEntity());
+		if (Victim != null) {
+			Player p = (Player) Victim;
+			if (p != null) {
+				try {
+					MarkHandler MH = plugin.markHandler
+							.get(plugin.safeLogoutList.indexOf(p));
+					if (MH.checkTagged(p)) {
+						MH.safeOn(p);
 					}
+				} catch (Exception ex) {
 				}
 			}
 		}

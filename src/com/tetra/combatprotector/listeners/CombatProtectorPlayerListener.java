@@ -45,22 +45,18 @@ public class CombatProtectorPlayerListener implements Listener {
 		try {
 			MarkHandler MH = plugin.markHandler.get(plugin.safeLogoutList
 					.indexOf(event.getPlayer()));
-			if (config.getEnabled()) {
-				if (MH.checkTagged(event.getPlayer())) {
-					plugin.getServer().broadcastMessage(
-							event.getPlayer().getDisplayName()
-									+ ChatColor.DARK_RED
-									+ " has combat logged... what a wuss. ");
-					event.getPlayer().setHealth(0);
-				}
-				MH.safeOn(event.getPlayer());
-				if (plugin.playerlist.contains(event.getPlayer())) {
-					if (config.getCLEnabled()) {
-						plugin.combatlogs.remove(plugin.playerlist
-								.indexOf(event.getPlayer()));
-					}
-					plugin.playerlist.remove(event.getPlayer());
-				}
+			if (MH.checkTagged(event.getPlayer())) {
+				plugin.getServer().broadcastMessage(
+						event.getPlayer().getDisplayName() + ChatColor.DARK_RED
+								+ " has combat logged... what a wuss. ");
+				event.getPlayer().setHealth(0);
+				event.getPlayer().remove();
+			}
+			MH.safeOn(event.getPlayer());
+			if (plugin.playerlist.contains(event.getPlayer())) {
+					plugin.combatlogs.remove(plugin.playerlist.indexOf(event
+							.getPlayer()));
+				plugin.playerlist.remove(event.getPlayer());
 			}
 		} catch (Exception ex) {
 
@@ -72,40 +68,30 @@ public class CombatProtectorPlayerListener implements Listener {
 		try {
 			MarkHandler MH = plugin.markHandler.get(plugin.safeLogoutList
 					.indexOf(event.getPlayer()));
-			if (config.getEnabled()) {
-				if (MH.checkTagged(event.getPlayer())) {
-					MH.safeOn(event.getPlayer());
-				}
-				if (plugin.playerlist.contains(event.getPlayer())) {
-					if (config.getCLEnabled()) {
-						plugin.combatlogs.remove(plugin.playerlist
-								.indexOf(event.getPlayer()));
-					}
-					plugin.playerlist.remove(event.getPlayer());
-				}
+			if (MH.checkTagged(event.getPlayer())) {
+				MH.safeOn(event.getPlayer());
+			}
+			if (plugin.playerlist.contains(event.getPlayer())) {
+					plugin.combatlogs.remove(plugin.playerlist.indexOf(event
+							.getPlayer()));
+				plugin.playerlist.remove(event.getPlayer());
+				event.getPlayer().remove();
 			}
 		} catch (Exception ex) {
 
 		}
-
 	}
 
 	@EventHandler(priority = EventPriority.HIGH)
 	public void onPlayerJoin(PlayerJoinEvent event) {
-		if (config.getEnabled()) {
-			event.getPlayer().sendMessage(
-					ChatColor.GOLD
-							+ "This server runs CombatProtector revision: "
-							+ plugin.info.getVersion()
-							+ ". Powered by SmashPVP.");
-			plugin.playerlist.add(event.getPlayer());
-			if (config.getCLEnabled()) {
-				plugin.combatlogs.add(new ArrayList<String>());
-			}
-		}
+		event.getPlayer().sendMessage(
+				ChatColor.GOLD + "This server runs CombatProtector revision: "
+						+ plugin.info.getVersion() + ". Powered by SmashPVP.");
+		plugin.playerlist.add(event.getPlayer());
+			plugin.combatlogs.add(new ArrayList<String>());
 	}
 
-	@EventHandler(priority = EventPriority.HIGH)
+	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onPlayerTeleport(PlayerTeleportEvent event) {
 		if (config.getEnabled()) {
 			try {
@@ -113,7 +99,12 @@ public class CombatProtectorPlayerListener implements Listener {
 						.indexOf(event.getPlayer()));
 				if (MH.checkTagged(event.getPlayer())) {
 					MH.sendTimeRemain();
-					event.setCancelled(true);
+					if (!event.isCancelled()) {
+						double dist = event.getTo().distance(event.getFrom());
+						if (dist >= 1) {
+							event.setCancelled(true);
+						}
+					}
 				}
 			} catch (Exception ex) {
 
@@ -123,17 +114,15 @@ public class CombatProtectorPlayerListener implements Listener {
 
 	@EventHandler(priority = EventPriority.HIGH)
 	public void onPTestlayerCommandPreprocess(PlayerCommandPreprocessEvent event) {
-		if (config.getEnabled()) {
-			try {
-				MarkHandler MH = plugin.markHandler.get(plugin.safeLogoutList
-						.indexOf(event.getPlayer()));
-				if (MH.checkTagged(event.getPlayer())) {
-					MH.sendTimeRemain();
-					event.setCancelled(true);
-				}
-			} catch (Exception ex) {
-
+		try {
+			MarkHandler MH = plugin.markHandler.get(plugin.safeLogoutList
+					.indexOf(event.getPlayer()));
+			if (MH.checkTagged(event.getPlayer())) {
+				MH.sendTimeRemain();
+				event.setCancelled(true);
 			}
+		} catch (Exception ex) {
+
 		}
 	}
 }
