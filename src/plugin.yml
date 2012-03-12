@@ -1,8 +1,7 @@
 name: CombatProtector
 main: com.tetra.combatprotector.CombatProtector
-version: 2.6.0d
-description: >
-             Prevent players from logging out/teleporting in combat.
+version: 2.6.3rb
+description: Prevent players from logging out/teleporting in combat.
 commands:
    combatlist:
       description: Checks a players gamemode.
