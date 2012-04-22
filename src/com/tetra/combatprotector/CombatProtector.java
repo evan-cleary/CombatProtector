@@ -15,6 +15,8 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.*/
 package com.tetra.combatprotector;
 
+import com.tetra.combatprotector.handlers.MarkHandler;
+import com.tetra.combatprotector.handlers.StreamHandler;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -26,6 +28,7 @@ import com.tetra.combatprotector.listeners.CombatProtectorPlayerListener;
 
 import java.util.ArrayList;
 import java.util.logging.Logger;
+import org.bukkit.ChatColor;
 
 public class CombatProtector extends JavaPlugin {
 
@@ -34,12 +37,14 @@ public class CombatProtector extends JavaPlugin {
     public ArrayList<ArrayList<String>> combatlogs = new ArrayList<ArrayList<String>>();
     public ArrayList<Player> safeLogoutList = new ArrayList<Player>();
     public ArrayList<MarkHandler> markHandler = new ArrayList<MarkHandler>();
+    public ArrayList<CombatStream> combatStreams = new ArrayList<CombatStream>();
     private CombatLogger CL = new CombatLogger(this);
     CombatProtectorEntityListener cpel;
     CombatProtectorPlayerListener cppl;
     Logger log = Logger.getLogger("Minecraft");
     public PluginDescriptionFile info;
-    Configuration config = new Configuration();
+    public Configuration config = new Configuration();
+    StreamHandler SH;
 
     @Override
     public void onEnable() {
@@ -48,6 +53,7 @@ public class CombatProtector extends JavaPlugin {
         cpel = new CombatProtectorEntityListener(this);
         cppl = new CombatProtectorPlayerListener(this);
         config.setConfDefaults();
+        SH = new StreamHandler(this);
         initLists();
         if (!config.getEnabled()) {
             this.getServer().getPluginManager().disablePlugin(this);
@@ -124,6 +130,29 @@ public class CombatProtector extends JavaPlugin {
                     }
                 }
                 return true;
+            }
+        }
+        if (cmd.getName().equalsIgnoreCase("cstream")) {
+            if (player == null) {
+                sender.sendMessage("[CombatProtector] This command requires a player.");
+            } else {
+                if (args.length == 1) {
+                    Player target = this.getServer().getPlayer(args[0]);
+                    if (target != null) {
+                        if (!SH.hasStream(target, player)) {
+                            combatStreams.add(new CombatStream(this, target, player));
+                            player.sendMessage(ChatColor.GREEN + "[CombatProtector] You are now streaming: " + target.getName() + "'s combat data.");
+                            return true;
+                        } else {
+                            combatStreams.remove(SH.getStream(target, player));
+                            player.sendMessage(ChatColor.RED + "[CombatProtector] You are no-longer streaming: " + target.getName() + "'s combat data.");
+                            return true;
+                        }
+                    }
+                } else{
+                    player.sendMessage(ChatColor.RED + "Incorrect number of arguements.");
+                    player.sendMessage(ChatColor.RED+ cmd.getUsage());
+                }
             }
         }
         // this hasn't happened the a value of false will be returned.

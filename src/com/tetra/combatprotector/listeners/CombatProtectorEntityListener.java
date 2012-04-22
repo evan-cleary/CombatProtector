@@ -30,13 +30,16 @@ import org.bukkit.event.entity.EntityDeathEvent;
 
 import com.tetra.combatprotector.CombatProtector;
 import com.tetra.combatprotector.Configuration;
-import com.tetra.combatprotector.MarkHandler;
+import com.tetra.combatprotector.handlers.MarkHandler;
 import com.tetra.combatprotector.CombatLogger;
+import com.tetra.combatprotector.CombatStream;
+import com.tetra.combatprotector.handlers.StreamHandler;
 
 public class CombatProtectorEntityListener implements Listener {
 
     public CombatProtector plugin;
     public CombatLogger CL;
+    StreamHandler SH;
     Configuration config = new Configuration();
     public double TimeOut = 140;
 
@@ -44,6 +47,7 @@ public class CombatProtectorEntityListener implements Listener {
         plugin = instance;
         CL = new CombatLogger(instance);
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
+        SH = new StreamHandler(plugin);
         setTimeOut();
     }
 
@@ -62,6 +66,20 @@ public class CombatProtectorEntityListener implements Listener {
                 final Player p = (Player) Damagee;
                 Player a = (Player) Damager;
                 if (!evt.isCancelled() || evt.getDamage() == 0) {
+                    if (SH.hasStream(a)) {
+                        for (CombatStream cs : plugin.combatStreams) {
+                            if (cs.getPlayer() == a) {
+                                cs.sendOutgoing(a, p, evt.getDamage(), checkWeapon(a));
+                            }
+                        }
+                    }
+                    if (SH.hasStream(p)) {
+                        for (CombatStream cs : plugin.combatStreams) {
+                            if (cs.getPlayer() == p) {
+                                cs.sendReceiving(p, a, evt.getDamage(), checkWeapon(a));
+                            }
+                        }
+                    }
                     try {
                         MarkHandler MH = plugin.markHandler.get(plugin.safeLogoutList.indexOf(p));
                         MH.refreshTimer(p);
@@ -85,6 +103,31 @@ public class CombatProtectorEntityListener implements Listener {
         Entity Victim = checkSource(event.getEntity());
         if (Victim != null) {
             Player p = (Player) Victim;
+            if (Victim.getLastDamageCause() instanceof EntityDamageByEntityEvent) {
+                EntityDamageByEntityEvent evt2 = (EntityDamageByEntityEvent) Victim.getLastDamageCause();
+                Player attacker = (Player) checkSource(evt2.getDamager());
+                if (evt2 != null) {
+                    if (attacker != null) {
+                        if (SH.hasStream(attacker)) {
+                            for (CombatStream cs : plugin.combatStreams) {
+                                if (cs.getPlayer() == attacker) {
+                                    cs.sendDeath(p, attacker);
+                                }
+                            }
+                        }
+                    }
+                    if (SH.hasStream(p)) {
+                        for (CombatStream cs : plugin.combatStreams) {
+                            if (attacker != null) {
+                                if (cs.getPlayer() == p) {
+                                    cs.sendDeath(p, attacker);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
             if (p != null) {
                 try {
                     MarkHandler MH = plugin.markHandler.get(plugin.safeLogoutList.indexOf(p));

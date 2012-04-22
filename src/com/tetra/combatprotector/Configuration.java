@@ -40,6 +40,9 @@ public class Configuration {
         if (!fc.contains("general.combatlogger")) {
             fc.set("general.combatlogger", false);
         }
+        if(!fc.contains("general.welcomemessage")){
+            fc.set("general.welcomemessage", true);
+        }
         try {
             fc.save("plugins/CombatProtector/config.yml");
         } catch (IOException e) {
@@ -76,5 +79,14 @@ public class Configuration {
             setConfDefaults();
         }
         return false;
+    }
+    public boolean getWelcomeMessage(){
+        try{
+            fc.load("plugins/CombatProtector/config.yml");
+            return fc.getBoolean("general.welcomemessage", true);
+        } catch(Exception e){
+            setConfDefaults();
+        }
+        return true;
     }
 }
