@@ -1,6 +1,6 @@
 name: CombatProtector
 main: com.tetra.combatprotector.CombatProtector
-version: 2.7.2rb
+version: 2.8.4rb
 description: Prevent players from logging out/teleporting in combat.
 commands:
    combatlist:
@@ -11,8 +11,4 @@ commands:
       description: Displays the combat damage history.
       permissions: combatprotector.cblog
       usage: /cblog [on;off]
-   cstream:
-     description: Stream's a players incoming and outgoing damage to sender.
-     permissions: combatprotector.cstream
-     usage: /cstream <playername>
 authors: [Mastershake71]

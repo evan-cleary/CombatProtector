@@ -1,22 +1,21 @@
 /* Combat Protector, Prevents users from logging out /teleporting in combat.
-Copyright (C) 2012  Evan Cleary
+ Copyright (C) 2012  Evan Cleary
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU Affero General Public License as
-published by the Free Software Foundation, either version 3 of the
-License, or (at your option) any later version.
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU Affero General Public License as
+ published by the Free Software Foundation, either version 3 of the
+ License, or (at your option) any later version.
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Affero General Public License for more details.
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU Affero General Public License for more details.
 
-You should have received a copy of the GNU Affero General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.*/
+ You should have received a copy of the GNU Affero General Public License
+ along with this program.  If not, see <http://www.gnu.org/licenses/>.*/
 package com.tetra.combatprotector;
 
 import java.io.IOException;
-
 import org.bukkit.configuration.file.YamlConfiguration;
 
 public class Configuration {
@@ -40,7 +39,7 @@ public class Configuration {
         if (!fc.contains("general.combatlogger")) {
             fc.set("general.combatlogger", false);
         }
-        if(!fc.contains("general.welcomemessage")){
+        if(!fc.contains("general.welcomemessage")) {
             fc.set("general.welcomemessage", true);
         }
         try {
@@ -80,11 +79,12 @@ public class Configuration {
         }
         return false;
     }
-    public boolean getWelcomeMessage(){
-        try{
+
+    public boolean getWelcomeMessage() {
+        try {
             fc.load("plugins/CombatProtector/config.yml");
             return fc.getBoolean("general.welcomemessage", true);
-        } catch(Exception e){
+        } catch (Exception e) {
             setConfDefaults();
         }
         return true;

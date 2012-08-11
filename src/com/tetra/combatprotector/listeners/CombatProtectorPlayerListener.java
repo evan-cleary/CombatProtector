@@ -15,22 +15,17 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.*/
 package com.tetra.combatprotector.listeners;
 
-import java.util.ArrayList;
-
-import org.bukkit.ChatColor;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerCommandPreprocessEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerKickEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.event.player.PlayerTeleportEvent;
-
 import com.tetra.combatprotector.CombatProtector;
 import com.tetra.combatprotector.Configuration;
 import com.tetra.combatprotector.handlers.MarkHandler;
+import java.util.ArrayList;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.*;
+import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
 
 public class CombatProtectorPlayerListener implements Listener {
 
@@ -42,11 +37,11 @@ public class CombatProtectorPlayerListener implements Listener {
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.NORMAL)
     public void onPlayerQuit(PlayerQuitEvent event) {
         Player evtplayer = event.getPlayer();
         try {
-            MarkHandler MH = plugin.markHandler.get(plugin.safeLogoutList.indexOf(evtplayer));
+            MarkHandler MH = plugin.markHandlers.get(evtplayer);
             if (MH.checkTagged(evtplayer)) {
                 plugin.getServer().broadcastMessage(
                         evtplayer.getName() + ChatColor.DARK_RED
@@ -66,7 +61,7 @@ public class CombatProtectorPlayerListener implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerKick(PlayerKickEvent event) {
         try {
-            MarkHandler MH = plugin.markHandler.get(plugin.safeLogoutList.indexOf(event.getPlayer()));
+            MarkHandler MH = plugin.markHandlers.get(event.getPlayer());
             if (MH.checkTagged(event.getPlayer())) {
                 MH.safeOn(event.getPlayer());
             }
@@ -90,17 +85,19 @@ public class CombatProtectorPlayerListener implements Listener {
         plugin.combatlogs.add(new ArrayList<String>());
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.LOW)
     public void onPlayerTeleport(PlayerTeleportEvent event) {
         if (config.getEnabled()) {
             try {
-                MarkHandler MH = plugin.markHandler.get(plugin.safeLogoutList.indexOf(event.getPlayer()));
+                MarkHandler MH = plugin.markHandlers.get(event.getPlayer());
                 if (MH.checkTagged(event.getPlayer())) {
                     MH.sendTimeRemain();
                     if (!event.isCancelled()) {
                         double dist = event.getTo().distance(event.getFrom());
                         if (dist >= 1) {
-                            event.setCancelled(true);
+                            if (event.getCause() == TeleportCause.ENDER_PEARL) {
+                                event.setCancelled(true);
+                            }
                         }
                     }
                 }
@@ -112,7 +109,7 @@ public class CombatProtectorPlayerListener implements Listener {
     @EventHandler(priority = EventPriority.HIGH)
     public void onPlayerCommandPreprocess(PlayerCommandPreprocessEvent event) {
         try {
-            MarkHandler MH = plugin.markHandler.get(plugin.safeLogoutList.indexOf(event.getPlayer()));
+            MarkHandler MH = plugin.markHandlers.get(event.getPlayer());
             if (MH.checkTagged(event.getPlayer()) && !event.getMessage().contains("/cblog")) {
                 MH.sendTimeRemain();
                 event.setCancelled(true);
