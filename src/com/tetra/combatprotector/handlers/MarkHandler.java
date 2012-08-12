@@ -69,7 +69,6 @@ public class MarkHandler {
 
     public void cancel(boolean notifyUser) {
         try {
-            cp.markHandlers.remove(player);
             if (notifyUser) {
                 player.sendMessage(ChatColor.GREEN
                         + "You are no longer marked for combat.");
@@ -80,7 +79,7 @@ public class MarkHandler {
 
     public void safeOn(Player p) {
         if (checkTagged(p)) {
-            cp.markHandlers.put(p, this);
+            cp.markHandlers.remove(p);
             cancel(true);
         }
     }
@@ -88,7 +87,6 @@ public class MarkHandler {
     public void safeOff(Player p) {
         cp.markHandlers.put(p, this);
         double delayd = cp.config.getCombatTimeOut();
-        cancel();
         c = new GregorianCalendar();
         c.add(Calendar.SECOND, (int) delayd);
         c.add(Calendar.MILLISECOND, (int) ((delayd * 1000.0) % 1000.0));
